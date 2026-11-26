@@ -12,6 +12,8 @@
 
 Developer: **Shinjuu** · fsociety.shinjuu@gmail.com
 
+**Live deployment:** <https://fsocietyshinjuu.github.io/tapfolio/> · sample profile: <https://fsocietyshinjuu.github.io/tapfolio/u/shinjuu>
+
 ---
 
 ## 1. Run it locally
