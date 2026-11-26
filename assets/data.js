@@ -12,6 +12,10 @@ export const PLATFORMS = [
   { id: "email", label: "Email", icon: "✉", color: "#ea4335", scheme: "mailto:" },
   { id: "phone", label: "Phone", icon: "☎", color: "#16a34a", scheme: "tel:" },
   { id: "resume", label: "Resume / CV", icon: "PDF", color: "#f97316" },
+  { id: "paypal", label: "PayPal", icon: "P", color: "#003087", payment: true },
+  { id: "gcash", label: "GCash", icon: "G", color: "#00a6e6", payment: true },
+  { id: "gotyme", label: "GoTyme", icon: "T", color: "#00b4d8", payment: true },
+  { id: "payoneer", label: "Payoneer", icon: "P", color: "#ff4800", payment: true },
   { id: "other", label: "Other link", icon: "•", color: "#64748b" }
 ];
 
@@ -68,6 +72,10 @@ export const SAMPLE_PROFILE = {
 
 export function platformMeta(id) {
   return PLATFORMS.find((item) => item.id === id) || PLATFORMS[PLATFORMS.length - 1];
+}
+
+export function isPaymentPlatform(id) {
+  return !!platformMeta(id).payment;
 }
 
 export function slugify(value) {
@@ -158,6 +166,8 @@ export function normalizeProfile(profile) {
         platform: platformMeta(link.platform).id,
         title: String(link.title || "").slice(0, 80),
         url: String(link.url || "").slice(0, 500),
+        paymentInfo: String(link.paymentInfo || "").slice(0, 300),
+        qrImage: typeof link.qrImage === "string" && link.qrImage.length <= 600000 ? link.qrImage : "",
         active: link.active !== false
       }))
     : [];

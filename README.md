@@ -7,6 +7,7 @@
 - Themes, accent colors and button styles
 - Google sign-in and cloud sync with Firebase (when configured)
 - Photo uploads for your avatar and a personal background, with live preview and overlay control
+- Payment icons (PayPal, GCash, GoTyme, Payoneer) that open a details/QR dialog
 - Web NFC writer for Android Chrome, plus tag-writer instructions for iPhone
 - Downloadable QR code and vCard contact file
 - Public profile URLs like `https://<you>.github.io/tapfolio/u/shinjuu`
@@ -117,7 +118,8 @@ The QR dialog is a fallback for phones that cannot read the tag, and the vCard b
 
 - Claim a unique handle in **Profile → Unique handle**. Allowed: lowercase letters, numbers, `-` and `_` (3–30 characters).
 - Upload a **Profile → Avatar photo** and crop it in the circular crop dialog (drag to reposition, slider to zoom) before applying. A **Style → Personal background photo** can also be uploaded instead of pasting a URL. Photos are compressed in your browser before saving; an overlay slider keeps profile text readable over a busy background. You can still paste an image URL in either field, and **Remove** clears an uploaded image.
-- Add links with the **Add a link** button. Pick a well-known platform (Website, Portfolio, GitHub, LinkedIn, X, Instagram, Facebook, YouTube, TikTok, WhatsApp, Email, Phone, Résumé or Other). For social platforms the site URL is filled in for you — just type your username, and Tapfolio builds the full link automatically. Existing full URLs keep working. Use the grip to drag, the arrows to reorder, and the check button to show/hide.
+- Add links with the **Add a link** button. Pick a well-known platform (Website, Portfolio, GitHub, LinkedIn, X, Instagram, Facebook, YouTube, TikTok, WhatsApp, Email, Phone, Résumé or Other). For social platforms the site URL is filled in for you — just type your username, and Tapfolio builds the full link automatically. Existing full URLs keep working.
+- Payment methods (PayPal, GCash, GoTyme, Payoneer) appear on your page as **icons only**. Add payment details and optionally a QR image URL or upload your own QR. Visitors tap the icon to see the details, a QR code (generated from your link/details if you don't upload one), and an optional “Open” button for your payment link. Use the grip to drag, the arrows to reorder, and the check button to show/hide.
 - Sample links in the `shinjuu` demo profile are placeholders — replace them with your real URLs before printing your card.
 - Click **Save changes** to publish. In Demo Mode it saves only in the current browser.
 

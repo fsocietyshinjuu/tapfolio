@@ -6,13 +6,14 @@ import {
   ACCENT_PRESETS,
   SAMPLE_PROFILE,
   platformMeta,
+  isPaymentPlatform,
   slugify,
   linkHref,
   linkInputValue,
   makeId,
   createDefaultProfile,
   normalizeProfile
-} from "./data.js?v=4";
+} from "./data.js?v=5";
 
 const FB_VERSION = "11.6.0";
 const SDK = {
@@ -34,6 +35,7 @@ const state = {
   route: "landing",
   dirty: false,
   actionUrl: "",
+  actionPayment: null,
   routeToken: 0
 };
 
@@ -448,8 +450,20 @@ function renderProfile(input, host, options = {}) {
     ? ` style="background-image:linear-gradient(rgba(5,7,18,${overlay}),rgba(5,7,18,${overlay})),url(&quot;${escapeAttr(profile.backgroundImage)}&quot;);background-size:cover;background-position:center;"`
     : "";
 
-  const linksHtml = activeLinks.length
-    ? activeLinks.map((link, index) => {
+  const paymentLinks = activeLinks.filter((link) => isPaymentPlatform(link.platform));
+  const regularLinks = activeLinks.filter((link) => !isPaymentPlatform(link.platform));
+
+  const paymentsHtml = paymentLinks.length
+    ? `<div class="payment-icons" role="group" aria-label="Payment methods">
+        ${paymentLinks.map((link, index) => {
+          const meta = platformMeta(link.platform);
+          return `<button class="payment-icon" type="button" data-action="payment" data-link-id="${escapeAttr(link.id)}" style="--icon-bg:${escapeAttr(meta.color)};animation-delay:${index * 45}ms" aria-label="${escapeAttr(meta.label)} payment details" title="${escapeAttr(meta.label)}"><span aria-hidden="true">${escapeHtml(meta.icon)}</span></button>`;
+        }).join("")}
+       </div>`
+    : "";
+
+  const linksHtml = regularLinks.length
+    ? regularLinks.map((link, index) => {
         const meta = platformMeta(link.platform);
         return `
         <a class="profile-link" href="${escapeAttr(linkHref(link))}" target="_blank" rel="noopener noreferrer" style="animation-delay:${index * 45}ms">
@@ -458,7 +472,7 @@ function renderProfile(input, host, options = {}) {
           <span class="link-arrow" aria-hidden="true">↗</span>
         </a>`;
       }).join("")
-    : '<div class="link-empty">Add a link from the editor to get started.</div>';
+    : paymentLinks.length ? "" : '<div class="link-empty">Add a link from the editor to get started.</div>';
 
   const ownerBar = options.isOwner
     ? `<div class="owner-bar">
@@ -498,6 +512,7 @@ function renderProfile(input, host, options = {}) {
             <span>◉ /u/${escapeHtml(profile.handle)}</span>
           </div>
         </header>
+        ${paymentsHtml}
         <div class="profile-links">${linksHtml}</div>
         ${actions}
         ${badge}
@@ -771,7 +786,23 @@ function renderLinkList() {
     const meta = platformMeta(link.platform);
     const urlField = meta.prefix
       ? `<div class="link-url-field input-with-prefix"><span class="link-url-prefix">${escapeHtml(meta.prefix)}</span><input class="link-url" type="text" maxlength="500" value="${escapeAttr(linkInputValue(link))}" placeholder="username" aria-label="${escapeAttr(meta.label)} username" /></div>`
-      : `<input class="link-url" type="text" maxlength="500" value="${escapeAttr(link.url)}" placeholder="${escapeAttr(meta.label)} URL" aria-label="Link URL" />`;
+      : `<input class="link-url" type="text" maxlength="500" value="${escapeAttr(link.url)}" placeholder="${meta.payment ? "Payment link (optional)" : escapeAttr(meta.label) + " URL"}" aria-label="Link URL" />`;
+
+    const qrValue = String(link.qrImage || "");
+    const extraFields = meta.payment
+      ? `<div class="link-extra">
+          <input class="link-payment-info" type="text" maxlength="300" value="${escapeAttr(link.paymentInfo || "")}" placeholder="Payment details — email, number or account name" aria-label="Payment details" />
+          <div class="payment-qr-field">
+            ${qrValue ? `<img class="payment-qr-thumb" src="${escapeAttr(qrValue)}" alt="" />` : ""}
+            <input class="link-qr-input" type="text" maxlength="500" value="${escapeAttr(qrValue.startsWith("data:") ? "" : qrValue)}" placeholder="QR image URL (optional)" aria-label="QR image URL" />
+            <input class="visually-hidden link-qr-file" type="file" accept="image/*" />
+            <button class="btn btn-glass btn-sm" type="button" data-payment-qr-upload>Upload QR</button>
+            ${qrValue ? `<button class="btn btn-ghost btn-sm" type="button" data-payment-qr-remove>Remove</button>` : ""}
+          </div>
+          <small class="payment-hint">Only the icon appears on your page. Visitors tap it to see these details and a QR code.</small>
+        </div>`
+      : "";
+
     return `
       <div class="link-row ${link.active ? "" : "inactive"}" draggable="true" data-link-id="${escapeAttr(link.id)}">
         <div class="link-drag">
@@ -786,6 +817,7 @@ function renderLinkList() {
         ${urlField}
         <button class="link-toggle ${link.active ? "on" : ""}" type="button" data-link-action="toggle" aria-label="${link.active ? "Hide" : "Show"} link" title="Show/hide">${link.active ? "✓" : "○"}</button>
         <button class="link-del" type="button" data-link-action="delete" aria-label="Delete link" title="Delete">×</button>
+        ${extraFields}
       </div>`;
   }).join("");
 }
@@ -805,6 +837,8 @@ function bindLinkListEvents() {
     if (!link) return;
     if (event.target.matches(".link-title")) link.title = event.target.value;
     if (event.target.matches(".link-url")) link.url = event.target.value;
+    if (event.target.matches(".link-payment-info")) link.paymentInfo = event.target.value;
+    if (event.target.matches(".link-qr-input")) link.qrImage = event.target.value.trim();
     markDirty();
     renderPreview();
   });
@@ -814,8 +848,13 @@ function bindLinkListEvents() {
     const row = event.target.closest(".link-row");
     const link = row && getLink(row.dataset.linkId);
     if (!link) return;
+    const wasPayment = isPaymentPlatform(link.platform);
     link.platform = event.target.value;
     const meta = platformMeta(link.platform);
+    if (wasPayment && !meta.payment) {
+      link.paymentInfo = "";
+      link.qrImage = "";
+    }
     if (meta.prefix) {
       const cleaned = linkInputValue(link);
       link.url = /^(https?:\/\/|mailto:|tel:)/i.test(cleaned) ? "" : cleaned;
@@ -826,7 +865,48 @@ function bindLinkListEvents() {
     markDirty();
   });
 
+  list.addEventListener("change", async (event) => {
+    if (!event.target.matches(".link-qr-file")) return;
+    const row = event.target.closest(".link-row");
+    const link = row && getLink(row.dataset.linkId);
+    const file = event.target.files?.[0];
+    if (!link || !file) return;
+    const button = row.querySelector("[data-payment-qr-upload]");
+    if (button) { button.disabled = true; button.textContent = "Processing…"; }
+    try {
+      link.qrImage = await compressImage(file, { side: 512, maxChars: 500000, format: "png" });
+      renderLinkList();
+      renderPreview();
+      markDirty();
+      showToast("QR code added. Save changes to publish.", "success");
+    } catch (error) {
+      showToast(error?.message || "Could not add that QR code.", "error");
+      if (button && button.isConnected) { button.disabled = false; button.textContent = "Upload QR"; }
+      event.target.value = "";
+    }
+  });
+
   list.addEventListener("click", (event) => {
+    const qrUpload = event.target.closest("[data-payment-qr-upload]");
+    if (qrUpload) {
+      qrUpload.closest(".link-row")?.querySelector(".link-qr-file")?.click();
+      return;
+    }
+
+    const qrRemove = event.target.closest("[data-payment-qr-remove]");
+    if (qrRemove) {
+      const row = qrRemove.closest(".link-row");
+      const link = row && getLink(row.dataset.linkId);
+      if (link) {
+        link.qrImage = "";
+        renderLinkList();
+        renderPreview();
+        markDirty();
+        showToast("QR code removed.", "success");
+      }
+      return;
+    }
+
     const button = event.target.closest("[data-link-action]");
     if (!button) return;
     const row = button.closest(".link-row");
@@ -895,9 +975,9 @@ function bindLinkListEvents() {
 
 function bindStaticEvents() {
   document.addEventListener("click", (event) => {
-    if (event.target.closest(".preview-root .profile-link")) {
+    if (event.target.closest(".preview-root .profile-link, .preview-root .payment-icon")) {
       event.preventDefault();
-      showToast("This is a preview — save and open your public link to visit it.");
+      showToast("This is a preview — save and open your public link to use it.");
       return;
     }
 
@@ -984,6 +1064,15 @@ async function handleAction(action, trigger, event) {
     case "vcf":
       downloadVCard();
       break;
+    case "payment":
+      openPaymentDialog(trigger.dataset.linkId);
+      break;
+    case "copy-payment":
+      if (state.actionPayment) {
+        const details = state.actionPayment.paymentInfo || state.actionPayment.url || "";
+        if (details) await copyText(details, "Details");
+      }
+      break;
     default:
       break;
   }
@@ -1018,6 +1107,39 @@ function openQrDialog(url) {
   const dialog = $("#actionDialog");
   if (!dialog.open) dialog.showModal();
   requestAnimationFrame(() => generateQr($("#qrHost"), url));
+}
+
+function openPaymentDialog(linkId) {
+  const profile = state.route === "profile" && state.viewProfile ? state.viewProfile : state.profile;
+  const link = profile?.links.find((item) => item.id === linkId);
+  if (!link) return;
+  const meta = platformMeta(link.platform);
+  state.actionPayment = link;
+
+  const info = String(link.paymentInfo || "").trim();
+  const qrImage = String(link.qrImage || "").trim();
+  const href = linkHref(link);
+  const qrText = String(link.url || "").trim() || info;
+
+  const body = $("#actionDialogBody");
+  body.innerHTML = `
+    <div class="dialog-icon payment-dialog-icon" style="background:${escapeAttr(meta.color)}" aria-hidden="true">${escapeHtml(meta.icon)}</div>
+    <h2 id="actionDialogTitle">${escapeHtml(meta.label)}</h2>
+    <p class="modal-subtitle">Payment details</p>
+    ${info ? `<div class="payment-info">${escapeHtml(info).replace(/\r?\n/g, "<br>")}</div>` : ""}
+    ${qrImage
+      ? `<img class="payment-qr" src="${escapeAttr(qrImage)}" alt="${escapeAttr(meta.label)} QR code" />`
+      : qrText
+        ? `<div class="qr-host" id="paymentQrHost"></div>`
+        : `<p class="modal-subtitle">Add payment details or a payment link in the editor to show a QR code.</p>`}
+    <div class="dialog-actions">
+      ${href !== "#" ? `<a class="btn btn-primary" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">↗ Open ${escapeHtml(meta.label)}</a>` : ""}
+      ${info ? `<button class="btn btn-glass" type="button" data-action="copy-payment">⧉ Copy details</button>` : ""}
+    </div>`;
+
+  const dialog = $("#actionDialog");
+  if (!dialog.open) dialog.showModal();
+  if (!qrImage && qrText) requestAnimationFrame(() => generateQr($("#paymentQrHost"), qrText));
 }
 
 function generateQr(host, url) {
@@ -1086,10 +1208,10 @@ async function writeNfc(url) {
   }
 }
 
-async function copyText(text) {
+async function copyText(text, label = "Link") {
   try {
     await navigator.clipboard.writeText(text);
-    showToast("Link copied to clipboard.", "success");
+    showToast(`${label} copied to clipboard.`, "success");
     return true;
   } catch {
     const input = document.createElement("textarea");
@@ -1100,7 +1222,7 @@ async function copyText(text) {
     input.select();
     const ok = document.execCommand("copy");
     input.remove();
-    showToast(ok ? "Link copied to clipboard." : "Could not copy. Select the link manually.", ok ? "success" : "error");
+    showToast(ok ? `${label} copied to clipboard.` : "Could not copy. Select the text manually.", ok ? "success" : "error");
     return ok;
   }
 }
@@ -1223,14 +1345,17 @@ async function readImageFile(file) {
 }
 
 async function compressImage(file, options) {
-  const { side = 1200, maxChars = 600000, quality = 0.78 } = options || {};
+  const { side = 1200, maxChars = 600000, quality = 0.78, format = "jpeg" } = options || {};
   const { image } = await readImageFile(file);
+  const png = format === "png";
 
-  const attempts = [
-    { side, quality },
-    { side: Math.round(side * 0.75), quality: Math.max(0.5, quality - 0.12) },
-    { side: Math.round(side * 0.55), quality: 0.55 }
-  ];
+  const attempts = png
+    ? [{ side }, { side: Math.round(side * 0.7) }, { side: Math.round(side * 0.5) }]
+    : [
+        { side, quality },
+        { side: Math.round(side * 0.75), quality: Math.max(0.5, quality - 0.12) },
+        { side: Math.round(side * 0.55), quality: 0.55 }
+      ];
 
   for (const attempt of attempts) {
     const scale = Math.min(1, attempt.side / Math.max(image.width, image.height));
@@ -1238,10 +1363,10 @@ async function compressImage(file, options) {
     canvas.width = Math.max(1, Math.round(image.width * scale));
     canvas.height = Math.max(1, Math.round(image.height * scale));
     const context = canvas.getContext("2d");
-    context.fillStyle = "#0b0e1c";
+    context.fillStyle = png ? "#ffffff" : "#0b0e1c";
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    const result = canvas.toDataURL("image/jpeg", attempt.quality);
+    const result = png ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg", attempt.quality);
     if (result.length <= maxChars) return result;
   }
 
