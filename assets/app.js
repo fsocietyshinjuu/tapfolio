@@ -486,8 +486,7 @@ function renderProfile(input, host, options = {}) {
         <div class="profile-bg"${backgroundStyle}></div>
         <header class="profile-head">
           <div class="avatar-wrap">
-            ${avatar}
-            <div class="avatar-fallback">${escapeHtml(initials)}</div>
+            ${avatar || `<div class="avatar-fallback">${escapeHtml(initials)}</div>`}
           </div>
           <span class="status-pill ${away ? "away" : ""}"><i aria-hidden="true"></i>${escapeHtml(profile.status)}</span>
           <h1 class="profile-name">${escapeHtml(profile.name)}</h1>
@@ -505,7 +504,13 @@ function renderProfile(input, host, options = {}) {
     </div>`;
 
   host.querySelectorAll("[data-avatar]").forEach((img) => {
-    img.addEventListener("error", () => img.remove(), { once: true });
+    img.addEventListener("error", () => {
+      const wrap = img.closest(".avatar-wrap");
+      img.remove();
+      if (wrap && !wrap.querySelector(".avatar-fallback")) {
+        wrap.insertAdjacentHTML("beforeend", `<div class="avatar-fallback">${escapeHtml(initials)}</div>`);
+      }
+    }, { once: true });
   });
   attachTilt(host.querySelectorAll(".profile-card"));
 }
