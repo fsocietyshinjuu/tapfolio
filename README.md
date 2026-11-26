@@ -6,6 +6,7 @@
 - Drag-and-drop link list with platform icons
 - Themes, accent colors and button styles
 - Google sign-in and cloud sync with Firebase (when configured)
+- Photo uploads for your avatar and a personal background, with live preview and overlay control
 - Web NFC writer for Android Chrome, plus tag-writer instructions for iPhone
 - Downloadable QR code and vCard contact file
 - Public profile URLs like `https://<you>.github.io/tapfolio/u/shinjuu`
@@ -115,6 +116,7 @@ The QR dialog is a fallback for phones that cannot read the tag, and the vCard b
 ## 5. Editing your profile
 
 - Claim a unique handle in **Profile → Unique handle**. Allowed: lowercase letters, numbers, `-` and `_` (3–30 characters).
+- Upload a **Profile → Avatar photo** or a **Style → Personal background photo** instead of pasting a URL. Photos are compressed in your browser before saving; an overlay slider keeps profile text readable over a busy background. You can still paste an image URL in either field, and **Remove** clears an uploaded image.
 - Add links with the **Add a link** button. Use the grip to drag, the arrows to reorder, and the check button to show/hide.
 - Sample links in the `shinjuu` demo profile are placeholders — replace them with your real URLs before printing your card.
 - Click **Save changes** to publish. In Demo Mode it saves only in the current browser.
