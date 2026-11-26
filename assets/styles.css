@@ -477,6 +477,16 @@ html[data-theme="light"] .dialog-url input { background: rgba(20,24,48,.035); }
 .qr-host canvas, .qr-host img, .qr-host table { max-width: 100%; height: auto !important; }
 .dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .dialog-actions .btn { flex: 1; min-width: 120px; margin-top: 0; }
+
+.crop-stage {
+  width: min(320px, 76vw); aspect-ratio: 1; margin: 20px auto 16px; overflow: hidden;
+  border: 2px solid rgba(255,255,255,.42); border-radius: 50%;
+  box-shadow: 0 16px 40px rgba(0,0,0,.4); cursor: grab; touch-action: none;
+}
+.crop-stage:active { cursor: grabbing; }
+.crop-stage canvas { display: block; width: 100%; height: 100%; }
+.crop-zoom { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--muted); }
+.crop-zoom input { flex: 1; min-width: 0; padding: 0; accent-color: var(--accent); }
 .dialog-list { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
 .dialog-list li { margin-bottom: 7px; }
 .support-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.25); color: #86efac; }

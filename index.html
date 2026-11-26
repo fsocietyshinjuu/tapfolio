@@ -360,6 +360,23 @@
     <p class="auth-note" id="authNote"></p>
   </dialog>
 
+  <dialog class="modal crop-modal" id="cropDialog" aria-labelledby="cropTitle">
+    <button class="modal-close" type="button" data-close-dialog aria-label="Close">×</button>
+    <h2 id="cropTitle">Crop your photo</h2>
+    <p class="modal-subtitle">Drag to reposition, then zoom until it looks right. Your avatar is cropped to a circle.</p>
+    <div class="crop-stage">
+      <canvas id="cropCanvas" width="480" height="480" aria-label="Photo crop preview"></canvas>
+    </div>
+    <label class="crop-zoom" for="cropZoom">
+      <span>Zoom</span>
+      <input id="cropZoom" type="range" min="100" max="300" step="1" value="100" />
+    </label>
+    <div class="dialog-actions">
+      <button class="btn btn-glass" type="button" data-crop="cancel">Cancel</button>
+      <button class="btn btn-primary" type="button" data-crop="apply">Use this photo</button>
+    </div>
+  </dialog>
+
   <dialog class="modal" id="actionDialog" aria-labelledby="actionDialogTitle">
     <button class="modal-close" type="button" data-close-dialog aria-label="Close">×</button>
     <div id="actionDialogBody"></div>
@@ -368,6 +385,6 @@
   <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
-  <script type="module" src="assets/app.js?v=2"></script>
+  <script type="module" src="assets/app.js?v=3"></script>
 </body>
 </html>

@@ -694,7 +694,14 @@ function bindEditorEvents() {
       button.disabled = true;
       button.textContent = "Processing…";
       try {
-        const dataUrl = await compressImage(file, config);
+        let dataUrl;
+        if (config.kind === "avatar") {
+          const { image } = await readImageFile(file);
+          dataUrl = await openCropDialog(image);
+          if (!dataUrl) return;
+        } else {
+          dataUrl = await compressImage(file, config);
+        }
         state.profile[config.key] = dataUrl;
         $(config.field).value = "";
         updateImageThumb(config.kind, dataUrl);
@@ -1185,12 +1192,11 @@ function escapeAttr(value) {
   return escapeHtml(value);
 }
 
-async function compressImage(file, options) {
-  const { side = 1200, maxChars = 600000, quality = 0.78 } = options || {};
+async function readImageFile(file) {
   if (!file.type?.startsWith("image/")) throw new Error("Choose an image file (JPG, PNG or WebP).");
   if (file.size > 12 * 1024 * 1024) throw new Error("That image is too large. Use one under 12 MB.");
 
-  const original = await new Promise((resolve, reject) => {
+  const dataUrl = await new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
     reader.onerror = () => reject(new Error("Could not read that image."));
@@ -1201,8 +1207,15 @@ async function compressImage(file, options) {
     const element = new Image();
     element.onload = () => resolve(element);
     element.onerror = () => reject(new Error("That file is not a valid image."));
-    element.src = original;
+    element.src = dataUrl;
   });
+
+  return { image, dataUrl };
+}
+
+async function compressImage(file, options) {
+  const { side = 1200, maxChars = 600000, quality = 0.78 } = options || {};
+  const { image } = await readImageFile(file);
 
   const attempts = [
     { side, quality },
@@ -1224,6 +1237,97 @@ async function compressImage(file, options) {
   }
 
   throw new Error("That image is still too large. Try a smaller photo.");
+}
+
+function openCropDialog(image) {
+  return new Promise((resolve) => {
+    const dialog = $("#cropDialog");
+    const canvas = $("#cropCanvas");
+    const zoom = $("#cropZoom");
+    const SIZE = 480;
+    let scale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
+    let done = false;
+
+    const dimensions = () => {
+      const base = Math.max(SIZE / image.width, SIZE / image.height);
+      return { width: image.width * base * scale, height: image.height * base * scale };
+    };
+
+    const draw = () => {
+      const { width, height } = dimensions();
+      offsetX = Math.max(-Math.max(0, (width - SIZE) / 2), Math.min(Math.max(0, (width - SIZE) / 2), offsetX));
+      offsetY = Math.max(-Math.max(0, (height - SIZE) / 2), Math.min(Math.max(0, (height - SIZE) / 2), offsetY));
+      canvas.width = SIZE;
+      canvas.height = SIZE;
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#0b0e1c";
+      context.fillRect(0, 0, SIZE, SIZE);
+      context.drawImage(image, (SIZE - width) / 2 + offsetX, (SIZE - height) / 2 + offsetY, width, height);
+    };
+
+    const cleanup = () => {
+      zoom.removeEventListener("input", onZoom);
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      canvas.removeEventListener("pointermove", onPointerMove);
+      canvas.removeEventListener("pointerup", onPointerUp);
+      canvas.removeEventListener("pointercancel", onPointerUp);
+      dialog.removeEventListener("close", onClose);
+      dialog.querySelector('[data-crop="cancel"]').removeEventListener("click", onCancel);
+      dialog.querySelector('[data-crop="apply"]').removeEventListener("click", onApply);
+    };
+
+    const finish = (value) => {
+      if (done) return;
+      done = true;
+      cleanup();
+      if (dialog.open) dialog.close();
+      resolve(value);
+    };
+
+    const onZoom = () => { scale = Number(zoom.value) / 100; draw(); };
+    const onPointerDown = (event) => {
+      dragging = true;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      canvas.setPointerCapture?.(event.pointerId);
+    };
+    const onPointerMove = (event) => {
+      if (!dragging) return;
+      const rect = canvas.getBoundingClientRect();
+      const factor = SIZE / rect.width;
+      offsetX += (event.clientX - lastX) * factor;
+      offsetY += (event.clientY - lastY) * factor;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      draw();
+    };
+    const onPointerUp = () => { dragging = false; };
+    const onCancel = () => finish(null);
+    const onApply = () => finish(canvas.toDataURL("image/jpeg", 0.85));
+    const onClose = () => { if (!done) finish(null); };
+
+    zoom.value = "100";
+    scale = 1;
+    offsetX = 0;
+    offsetY = 0;
+    draw();
+
+    zoom.addEventListener("input", onZoom);
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointercancel", onPointerUp);
+    dialog.querySelector('[data-crop="cancel"]').addEventListener("click", onCancel);
+    dialog.querySelector('[data-crop="apply"]').addEventListener("click", onApply);
+    dialog.addEventListener("close", onClose);
+
+    if (!dialog.open) dialog.showModal();
+  });
 }
 
 function updateImageThumb(kind, value) {

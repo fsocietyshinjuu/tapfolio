@@ -116,7 +116,7 @@ The QR dialog is a fallback for phones that cannot read the tag, and the vCard b
 ## 5. Editing your profile
 
 - Claim a unique handle in **Profile → Unique handle**. Allowed: lowercase letters, numbers, `-` and `_` (3–30 characters).
-- Upload a **Profile → Avatar photo** or a **Style → Personal background photo** instead of pasting a URL. Photos are compressed in your browser before saving; an overlay slider keeps profile text readable over a busy background. You can still paste an image URL in either field, and **Remove** clears an uploaded image.
+- Upload a **Profile → Avatar photo** and crop it in the circular crop dialog (drag to reposition, slider to zoom) before applying. A **Style → Personal background photo** can also be uploaded instead of pasting a URL. Photos are compressed in your browser before saving; an overlay slider keeps profile text readable over a busy background. You can still paste an image URL in either field, and **Remove** clears an uploaded image.
 - Add links with the **Add a link** button. Use the grip to drag, the arrows to reorder, and the check button to show/hide.
 - Sample links in the `shinjuu` demo profile are placeholders — replace them with your real URLs before printing your card.
 - Click **Save changes** to publish. In Demo Mode it saves only in the current browser.
