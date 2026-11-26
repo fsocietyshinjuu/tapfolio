@@ -8,10 +8,11 @@ import {
   platformMeta,
   slugify,
   linkHref,
+  linkInputValue,
   makeId,
   createDefaultProfile,
   normalizeProfile
-} from "./data.js";
+} from "./data.js?v=4";
 
 const FB_VERSION = "11.6.0";
 const SDK = {
@@ -768,6 +769,9 @@ function renderLinkList() {
 
   list.innerHTML = state.profile.links.map((link) => {
     const meta = platformMeta(link.platform);
+    const urlField = meta.prefix
+      ? `<div class="link-url-field input-with-prefix"><span class="link-url-prefix">${escapeHtml(meta.prefix)}</span><input class="link-url" type="text" maxlength="500" value="${escapeAttr(linkInputValue(link))}" placeholder="username" aria-label="${escapeAttr(meta.label)} username" /></div>`
+      : `<input class="link-url" type="text" maxlength="500" value="${escapeAttr(link.url)}" placeholder="${escapeAttr(meta.label)} URL" aria-label="Link URL" />`;
     return `
       <div class="link-row ${link.active ? "" : "inactive"}" draggable="true" data-link-id="${escapeAttr(link.id)}">
         <div class="link-drag">
@@ -779,7 +783,7 @@ function renderLinkList() {
         </div>
         <select class="link-platform" aria-label="Link platform">${platformOptions(link.platform)}</select>
         <input class="link-title" type="text" maxlength="80" value="${escapeAttr(link.title)}" placeholder="Title" aria-label="Link title" />
-        <input class="link-url" type="text" maxlength="500" value="${escapeAttr(link.url)}" placeholder="${escapeAttr(meta.label)} URL" aria-label="Link URL" />
+        ${urlField}
         <button class="link-toggle ${link.active ? "on" : ""}" type="button" data-link-action="toggle" aria-label="${link.active ? "Hide" : "Show"} link" title="Show/hide">${link.active ? "✓" : "○"}</button>
         <button class="link-del" type="button" data-link-action="delete" aria-label="Delete link" title="Delete">×</button>
       </div>`;
@@ -811,7 +815,12 @@ function bindLinkListEvents() {
     const link = row && getLink(row.dataset.linkId);
     if (!link) return;
     link.platform = event.target.value;
-    if (!link.title) link.title = platformMeta(link.platform).label;
+    const meta = platformMeta(link.platform);
+    if (meta.prefix) {
+      const cleaned = linkInputValue(link);
+      link.url = /^(https?:\/\/|mailto:|tel:)/i.test(cleaned) ? "" : cleaned;
+    }
+    if (!link.title) link.title = meta.label;
     renderLinkList();
     renderPreview();
     markDirty();

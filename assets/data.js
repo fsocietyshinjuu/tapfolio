@@ -1,23 +1,17 @@
 export const PLATFORMS = [
-  { id: "portfolio", label: "Portfolio", icon: "◆", color: "#22d3ee" },
   { id: "website", label: "Website", icon: "↗", color: "#8b5cf6" },
-  { id: "github", label: "GitHub", icon: "GH", color: "#30363d" },
-  { id: "linkedin", label: "LinkedIn", icon: "in", color: "#0a66c2" },
-  { id: "x", label: "X / Twitter", icon: "𝕏", color: "#0f172a" },
-  { id: "instagram", label: "Instagram", icon: "◎", color: "#e1306c" },
-  { id: "youtube", label: "YouTube", icon: "▶", color: "#ff0033" },
-  { id: "tiktok", label: "TikTok", icon: "♪", color: "#111827" },
-  { id: "threads", label: "Threads", icon: "@", color: "#111827" },
-  { id: "dribbble", label: "Dribbble", icon: "◉", color: "#ea4c89" },
-  { id: "behance", label: "Behance", icon: "Bē", color: "#1769ff" },
-  { id: "figma", label: "Figma", icon: "◈", color: "#f24e1e" },
-  { id: "spotify", label: "Spotify", icon: "♫", color: "#1db954" },
-  { id: "discord", label: "Discord", icon: "◜", color: "#5865f2" },
-  { id: "medium", label: "Medium", icon: "M", color: "#111827" },
+  { id: "portfolio", label: "Portfolio", icon: "◆", color: "#22d3ee" },
+  { id: "github", label: "GitHub", icon: "GH", color: "#30363d", prefix: "https://github.com/" },
+  { id: "linkedin", label: "LinkedIn", icon: "in", color: "#0a66c2", prefix: "https://linkedin.com/in/" },
+  { id: "x", label: "X / Twitter", icon: "𝕏", color: "#0f172a", prefix: "https://x.com/" },
+  { id: "instagram", label: "Instagram", icon: "◎", color: "#e1306c", prefix: "https://instagram.com/" },
+  { id: "facebook", label: "Facebook", icon: "f", color: "#1877f2", prefix: "https://facebook.com/" },
+  { id: "youtube", label: "YouTube", icon: "▶", color: "#ff0033", prefix: "https://youtube.com/@" },
+  { id: "tiktok", label: "TikTok", icon: "♪", color: "#111827", prefix: "https://tiktok.com/@" },
+  { id: "whatsapp", label: "WhatsApp", icon: "WA", color: "#25d366", prefix: "https://wa.me/" },
   { id: "email", label: "Email", icon: "✉", color: "#ea4335", scheme: "mailto:" },
   { id: "phone", label: "Phone", icon: "☎", color: "#16a34a", scheme: "tel:" },
   { id: "resume", label: "Resume / CV", icon: "PDF", color: "#f97316" },
-  { id: "whatsapp", label: "WhatsApp", icon: "WA", color: "#25d366" },
   { id: "other", label: "Other link", icon: "•", color: "#64748b" }
 ];
 
@@ -87,14 +81,34 @@ export function slugify(value) {
     .slice(0, 30);
 }
 
-export function linkHref(link) {
+export function linkInputValue(link) {
   const meta = platformMeta(link.platform);
   let value = String(link.url || "").trim();
+  if (!meta.prefix) return value;
+
+  const host = meta.prefix.replace(/^https?:\/\//i, "").toLowerCase();
+  const hostBare = host.replace(/\/$/, "");
+  const bare = value.replace(/^https?:\/\//i, "").replace(/^www\./i, "");
+
+  if (/^https?:\/\//i.test(value)) {
+    if (!bare.toLowerCase().startsWith(hostBare)) return value;
+    value = bare;
+  }
+
+  if (value.toLowerCase().startsWith(host)) value = value.slice(host.length);
+  else if (value.toLowerCase().startsWith(hostBare)) value = value.slice(hostBare.length);
+  return value.replace(/^@/, "").replace(/^\/+/, "");
+}
+
+export function linkHref(link) {
+  const meta = platformMeta(link.platform);
+  const value = linkInputValue(link);
   if (!value) return "#";
   if (meta.scheme) {
     return meta.scheme + value.replace(new RegExp(`^${meta.scheme}`, "i"), "");
   }
   if (/^(https?:\/\/|mailto:|tel:)/i.test(value)) return value;
+  if (meta.prefix) return meta.prefix + value.replace(/^@/, "").replace(/^\/+/, "");
   return "https://" + value.replace(/^\/+/, "");
 }
 

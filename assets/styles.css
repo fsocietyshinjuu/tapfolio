@@ -343,6 +343,11 @@ html[data-theme="light"] .link-row { background: rgba(20,24,48,.035); }
 .link-drag { display: grid; justify-items: center; gap: 2px; }
 .link-row input, .link-row select { width: 100%; min-width: 0; background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px; font-size: 13px; }
 .link-row input:focus, .link-row select:focus { border-color: var(--accent); }
+.link-url-field { min-width: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 8px; background: rgba(0,0,0,.12); }
+.link-url-field:focus-within { border-color: var(--accent); }
+.link-url-field .link-url { border: 0; background: transparent; padding-left: 5px; }
+.link-url-prefix { flex: 0 1 auto; max-width: 58%; padding-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted-2); font-size: 10px; }
+html[data-theme="light"] .link-url-field { background: rgba(20,24,48,.035); }
 .link-grip { color: var(--muted-2); cursor: grab; font-size: 15px; text-align: center; user-select: none; }
 .link-grip:active { cursor: grabbing; }
 .link-toggle { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border); background: transparent; color: var(--muted); display: grid; place-items: center; font-size: 14px; }
@@ -554,6 +559,7 @@ html[data-theme="light"] .dialog-url input { background: rgba(20,24,48,.035); }
   .link-platform { grid-area: platform; }
   .link-title { grid-area: title; }
   .link-url { grid-area: url; }
+  .link-url-field { grid-area: url; }
   .link-toggle { grid-area: toggle; }
   .link-del { grid-area: del; }
   .link-move { grid-area: move; flex-direction: row; justify-content: center; }
