@@ -193,10 +193,20 @@
                 <span class="panel-index">01</span>
               </div>
               <div class="form-grid">
-                <label class="field field-span-2">
-                  <span>Avatar image URL <em>optional</em></span>
-                  <input id="avatarInput" type="url" placeholder="https://…/photo.jpg" autocomplete="off" />
-                </label>
+                <div class="field field-span-2">
+                  <span>Avatar photo <em>optional</em></span>
+                  <div class="image-field">
+                    <div class="image-thumb" id="avatarThumb" aria-hidden="true"><span>＋</span></div>
+                    <div class="image-controls">
+                      <input id="avatarFileInput" class="visually-hidden" type="file" accept="image/*" />
+                      <div class="image-buttons">
+                        <button class="btn btn-glass btn-sm" type="button" data-upload="avatar">Upload photo</button>
+                        <button class="btn btn-ghost btn-sm" type="button" data-remove-image="avatar" hidden>Remove</button>
+                      </div>
+                      <input id="avatarInput" type="url" placeholder="Or paste an image URL…" autocomplete="off" />
+                    </div>
+                  </div>
+                </div>
                 <label class="field">
                   <span>Display name</span>
                   <input id="nameInput" type="text" maxlength="60" placeholder="Your name" />
@@ -247,6 +257,25 @@
                   <span>Background</span>
                   <select id="themeSelect"></select>
                 </label>
+                <div class="field field-span-2">
+                  <span>Personal background photo <em>optional</em></span>
+                  <div class="image-field">
+                    <div class="image-thumb image-thumb-wide" id="backgroundThumb" aria-hidden="true"><span>▧</span></div>
+                    <div class="image-controls">
+                      <input id="backgroundFileInput" class="visually-hidden" type="file" accept="image/*" />
+                      <div class="image-buttons">
+                        <button class="btn btn-glass btn-sm" type="button" data-upload="background">Upload photo</button>
+                        <button class="btn btn-ghost btn-sm" type="button" data-remove-image="background" hidden>Remove</button>
+                      </div>
+                      <input id="backgroundInput" type="url" placeholder="Or paste a background image URL…" autocomplete="off" />
+                      <label class="range-field" for="backgroundOverlayInput">
+                        <span>Photo overlay</span>
+                        <input id="backgroundOverlayInput" type="range" min="0" max="90" step="5" value="45" />
+                        <code id="backgroundOverlayValue">45%</code>
+                      </label>
+                    </div>
+                  </div>
+                </div>
                 <div class="field field-span-2">
                   <span>Quick colors</span>
                   <div class="preset-row" id="accentPresets"></div>

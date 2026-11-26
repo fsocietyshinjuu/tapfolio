@@ -442,6 +442,11 @@ function renderProfile(input, host, options = {}) {
     ? `<img class="avatar" src="${escapeAttr(profile.avatar)}" alt="${escapeAttr(profile.name)}" data-avatar />`
     : "";
 
+  const overlay = Math.max(0, Math.min(90, Number(profile.backgroundOverlay) || 0)) / 100;
+  const backgroundStyle = profile.backgroundImage
+    ? ` style="background-image:linear-gradient(rgba(5,7,18,${overlay}),rgba(5,7,18,${overlay})),url(&quot;${escapeAttr(profile.backgroundImage)}&quot;);background-size:cover;background-position:center;"`
+    : "";
+
   const linksHtml = activeLinks.length
     ? activeLinks.map((link, index) => {
         const meta = platformMeta(link.platform);
@@ -478,7 +483,7 @@ function renderProfile(input, host, options = {}) {
     ${ownerBar}
     <div class="profile-shell profile-button-${profile.buttonStyle}" style="--accent:${escapeAttr(profile.accent)}" data-theme="${escapeAttr(profile.theme)}">
       <article class="profile-card">
-        <div class="profile-bg"></div>
+        <div class="profile-bg"${backgroundStyle}></div>
         <header class="profile-head">
           <div class="avatar-wrap">
             ${avatar}
@@ -532,7 +537,12 @@ function populateSelects() {
 
 function populateEditor() {
   const p = state.profile;
-  $("#avatarInput").value = p.avatar || "";
+  $("#avatarInput").value = p.avatar && !String(p.avatar).startsWith("data:") ? p.avatar : "";
+  $("#backgroundInput").value = p.backgroundImage && !String(p.backgroundImage).startsWith("data:") ? p.backgroundImage : "";
+  $("#backgroundOverlayInput").value = p.backgroundOverlay ?? 45;
+  $("#backgroundOverlayValue").textContent = `${p.backgroundOverlay ?? 45}%`;
+  updateImageThumb("avatar", p.avatar);
+  updateImageThumb("background", p.backgroundImage);
   $("#nameInput").value = p.name || "";
   $("#handleInput").value = p.handle || "";
   $("#headlineInput").value = p.headline || "";
@@ -552,7 +562,11 @@ function populateEditor() {
 function syncProfileFromForm() {
   if (!state.profile) state.profile = createDefaultProfile(state.user || { name: "Creator" }, "creator");
   const p = state.profile;
-  p.avatar = $("#avatarInput").value.trim();
+  const avatarUrl = $("#avatarInput").value.trim();
+  p.avatar = avatarUrl || (String(p.avatar).startsWith("data:") ? p.avatar : "");
+  const backgroundUrl = $("#backgroundInput").value.trim();
+  p.backgroundImage = backgroundUrl || (String(p.backgroundImage).startsWith("data:") ? p.backgroundImage : "");
+  p.backgroundOverlay = Number($("#backgroundOverlayInput").value);
   p.name = $("#nameInput").value;
   p.handle = slugify($("#handleInput").value);
   p.headline = $("#headlineInput").value;
@@ -593,6 +607,7 @@ function renderPreview() {
 function bindEditorEvents() {
   const textFields = {
     avatarInput: "avatar",
+    backgroundInput: "backgroundImage",
     nameInput: "name",
     headlineInput: "headline",
     bioInput: "bio",
@@ -648,6 +663,63 @@ function bindEditorEvents() {
     syncProfileFromForm();
     markDirty();
     renderPreview();
+  });
+
+  $("#backgroundOverlayInput").addEventListener("input", (event) => {
+    $("#backgroundOverlayValue").textContent = `${event.target.value}%`;
+    syncProfileFromForm();
+    markDirty();
+    renderPreview();
+  });
+
+  const uploads = [
+    { kind: "avatar", file: "#avatarFileInput", field: "#avatarInput", key: "avatar", side: 384, maxChars: 300000, quality: 0.82, label: "Avatar" },
+    { kind: "background", file: "#backgroundFileInput", field: "#backgroundInput", key: "backgroundImage", side: 1400, maxChars: 600000, quality: 0.76, label: "Background" }
+  ];
+
+  uploads.forEach((config) => {
+    const fileInput = $(config.file);
+    const button = $(`[data-upload="${config.kind}"]`);
+
+    button.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files?.[0];
+      if (!file || !state.profile) return;
+      button.disabled = true;
+      button.textContent = "Processing…";
+      try {
+        const dataUrl = await compressImage(file, config);
+        state.profile[config.key] = dataUrl;
+        $(config.field).value = "";
+        updateImageThumb(config.kind, dataUrl);
+        syncProfileFromForm();
+        markDirty();
+        renderPreview();
+        showToast(`${config.label} photo added. Save changes to publish.`, "success");
+      } catch (error) {
+        showToast(error?.message || "Could not add that photo.", "error");
+      } finally {
+        fileInput.value = "";
+        button.disabled = false;
+        button.textContent = "Upload photo";
+      }
+    });
+  });
+
+  $$("[data-remove-image]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!state.profile) return;
+      const config = uploads.find((item) => item.kind === button.dataset.removeImage);
+      if (!config) return;
+      state.profile[config.key] = "";
+      $(config.field).value = "";
+      updateImageThumb(config.kind, "");
+      syncProfileFromForm();
+      markDirty();
+      renderPreview();
+      showToast(`${config.label} image removed.`, "success");
+    });
   });
 
   $("#addLinkBtn").addEventListener("click", () => {
@@ -1106,6 +1178,57 @@ function escapeHtml(value) {
 
 function escapeAttr(value) {
   return escapeHtml(value);
+}
+
+async function compressImage(file, options) {
+  const { side = 1200, maxChars = 600000, quality = 0.78 } = options || {};
+  if (!file.type?.startsWith("image/")) throw new Error("Choose an image file (JPG, PNG or WebP).");
+  if (file.size > 12 * 1024 * 1024) throw new Error("That image is too large. Use one under 12 MB.");
+
+  const original = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Could not read that image."));
+    reader.readAsDataURL(file);
+  });
+
+  const image = await new Promise((resolve, reject) => {
+    const element = new Image();
+    element.onload = () => resolve(element);
+    element.onerror = () => reject(new Error("That file is not a valid image."));
+    element.src = original;
+  });
+
+  const attempts = [
+    { side, quality },
+    { side: Math.round(side * 0.75), quality: Math.max(0.5, quality - 0.12) },
+    { side: Math.round(side * 0.55), quality: 0.55 }
+  ];
+
+  for (const attempt of attempts) {
+    const scale = Math.min(1, attempt.side / Math.max(image.width, image.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+    const context = canvas.getContext("2d");
+    context.fillStyle = "#0b0e1c";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    const result = canvas.toDataURL("image/jpeg", attempt.quality);
+    if (result.length <= maxChars) return result;
+  }
+
+  throw new Error("That image is still too large. Try a smaller photo.");
+}
+
+function updateImageThumb(kind, value) {
+  const thumb = $(kind === "avatar" ? "#avatarThumb" : "#backgroundThumb");
+  if (!thumb) return;
+  thumb.innerHTML = value
+    ? `<img src="${escapeAttr(value)}" alt="" />`
+    : `<span aria-hidden="true">${kind === "avatar" ? "＋" : "▧"}</span>`;
+  const removeButton = $(`[data-remove-image="${kind}"]`);
+  if (removeButton) removeButton.hidden = !value;
 }
 
 function downloadBlob(content, filename, type) {

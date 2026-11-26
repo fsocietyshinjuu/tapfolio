@@ -45,6 +45,15 @@ http.createServer((req, res) => {
     return;
   }
 
+  const profileMatch = pathname.match(/^(.*)\/u\/([^/]+)\/?$/);
+  if (profileMatch) {
+    const base = profileMatch[1] || "";
+    const handle = encodeURIComponent(decodeURIComponent(profileMatch[2]));
+    res.writeHead(302, { Location: `${base}/?u=${handle}` });
+    res.end();
+    return;
+  }
+
   if (pathname.endsWith("/")) pathname += "index.html";
 
   const resolved = path.resolve(root, "." + pathname);

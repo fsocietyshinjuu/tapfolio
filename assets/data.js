@@ -54,6 +54,8 @@ export const SAMPLE_PROFILE = {
   headline: "Developer & digital builder",
   bio: "I design and build fast, delightful web experiences. Tap a link to explore the work, or drop me a message.",
   avatar: "",
+  backgroundImage: "",
+  backgroundOverlay: 45,
   location: "Working remotely",
   status: "Open to work",
   accent: "#7c5cff",
@@ -110,6 +112,8 @@ export function createDefaultProfile(user, handle) {
     headline: "Creator · Developer · Maker",
     bio: "Welcome to my Tapfolio. One tap for everything I'm working on.",
     avatar: "",
+    backgroundImage: "",
+    backgroundOverlay: 45,
     location: "",
     status: STATUSES[0],
     accent: "#7c5cff",
@@ -129,6 +133,11 @@ export function normalizeProfile(profile) {
   merged.accent = /^#[0-9a-f]{6}$/i.test(merged.accent || "") ? merged.accent : base.accent;
   merged.theme = THEMES.some((theme) => theme.id === merged.theme) ? merged.theme : base.theme;
   merged.buttonStyle = ["pill", "soft", "outline"].includes(merged.buttonStyle) ? merged.buttonStyle : "pill";
+  merged.backgroundImage = typeof merged.backgroundImage === "string" && merged.backgroundImage.length <= 900000
+    ? merged.backgroundImage
+    : "";
+  const overlay = Number(merged.backgroundOverlay);
+  merged.backgroundOverlay = Number.isFinite(overlay) ? Math.max(0, Math.min(90, Math.round(overlay))) : 45;
   merged.links = Array.isArray(merged.links)
     ? merged.links.filter((link) => link && typeof link === "object").map((link) => ({
         id: link.id || makeId(),
