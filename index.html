@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#070914" />
+  <meta name="description" content="Tapfolio — one NFC tap for your portfolio, social links and contact details." />
+  <meta property="og:title" content="Tapfolio — One tap. Your whole world." />
+  <meta property="og:description" content="A modern NFC-ready digital card for creators, developers and professionals." />
+  <meta property="og:type" content="website" />
+  <title>Tapfolio — One tap. Your whole world.</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-view="landing">
+  <div class="ambient" aria-hidden="true">
+    <span class="orb orb-one"></span>
+    <span class="orb orb-two"></span>
+    <span class="orb orb-three"></span>
+    <span class="ambient-grid"></span>
+  </div>
+
+  <header class="site-header">
+    <a class="brand" href="#" data-action="home" aria-label="Tapfolio home">
+      <span class="brand-mark" aria-hidden="true">
+        <span class="brand-mark-core"></span>
+      </span>
+      <span class="brand-name">tapfolio<span class="brand-dot">.</span></span>
+    </a>
+
+    <nav class="header-nav" aria-label="Main navigation">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#nfc-section">NFC</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle light or dark theme" title="Toggle theme">
+        <span id="themeToggleIcon" aria-hidden="true">◐</span>
+      </button>
+      <button class="btn btn-primary btn-sm" id="headerAuthBtn" type="button" data-action="header-auth">Sign in</button>
+    </div>
+  </header>
+
+  <main id="mainContent">
+    <!-- LANDING -->
+    <section class="view landing-view" id="landingView" aria-labelledby="heroTitle">
+      <div class="hero container">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="pulse-dot"></span> NFC-ready digital identity</div>
+          <h1 id="heroTitle">One tap.<br /><span class="gradient-text">Your whole world.</span></h1>
+          <p class="hero-subtitle">
+            Put your portfolio, socials and contact details on one beautiful page. Write it to an NFC card,
+            stick it on your phone, and let anyone tap to know you.
+          </p>
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-lg" type="button" data-action="start">
+              <span aria-hidden="true">✦</span> Create your Tapfolio
+            </button>
+            <button class="btn btn-glass btn-lg" type="button" data-action="open-sample">
+              <span aria-hidden="true">↗</span> See a live profile
+            </button>
+          </div>
+          <div class="hero-proof">
+            <div class="avatar-stack" aria-hidden="true">
+              <span>JS</span><span>AM</span><span>RK</span><span>+</span>
+            </div>
+            <p>Built for developers, designers & creators who want to be one tap away.</p>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="phone-glow" aria-hidden="true"></div>
+          <div class="phone" id="heroPhone">
+            <div class="phone-notch" aria-hidden="true"></div>
+            <div class="phone-screen">
+              <div class="mini-avatar">S</div>
+              <div class="mini-status">● Open to work</div>
+              <h2>Shinjuu</h2>
+              <p class="mini-headline">Developer & digital builder</p>
+              <div class="mini-link"><span class="mini-icon" style="--mini:#22d3ee">◆</span><span>Featured work</span><span class="mini-arrow">↗</span></div>
+              <div class="mini-link"><span class="mini-icon" style="--mini:#30363d">GH</span><span>GitHub</span><span class="mini-arrow">↗</span></div>
+              <div class="mini-link"><span class="mini-icon" style="--mini:#ea4335">✉</span><span>Email Shinjuu</span><span class="mini-arrow">↗</span></div>
+              <div class="mini-footer">Made with <strong>tapfolio.</strong></div>
+            </div>
+          </div>
+          <div class="float-chip float-chip-one"><span aria-hidden="true">⚡</span> Tap to connect</div>
+          <div class="float-chip float-chip-two"><span aria-hidden="true">▦</span> QR included</div>
+        </div>
+      </div>
+
+      <section class="section container" id="features" aria-labelledby="featuresTitle">
+        <div class="section-heading">
+          <span class="section-kicker">Everything in one tap</span>
+          <h2 id="featuresTitle">Your digital handshake, upgraded.</h2>
+          <p>No app for visitors. No design skills needed. Just a link that feels like you.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-icon icon-violet" aria-hidden="true">⚡</div>
+            <h3>NFC ready</h3>
+            <p>Write your profile URL straight to a tag from supported browsers. Tap any phone and it opens instantly.</p>
+            <span class="feature-tag">Web NFC + tag-writer guide</span>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon icon-cyan" aria-hidden="true">✎</div>
+            <h3>Live editor</h3>
+            <p>Edit your name, bio, links, colors and theme while watching a real-time preview of your page.</p>
+            <span class="feature-tag">Drag, drop, personalize</span>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon icon-rose" aria-hidden="true">▦</div>
+            <h3>QR + vCard</h3>
+            <p>Download a scannable QR code and a contact card so people can save your details in one tap.</p>
+            <span class="feature-tag">Print-ready downloads</span>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon icon-amber" aria-hidden="true">◎</div>
+            <h3>Google sign-in</h3>
+            <p>Sign up securely with Google. Your profile syncs to the cloud when Firebase is connected.</p>
+            <span class="feature-tag">Firebase Auth + Firestore</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="section container" id="how-it-works" aria-labelledby="stepsTitle">
+        <div class="section-heading">
+          <span class="section-kicker">Three simple steps</span>
+          <h2 id="stepsTitle">From blank page to business card.</h2>
+        </div>
+        <div class="steps-grid">
+          <article class="step-card"><span class="step-number">01</span><h3>Sign in</h3><p>Use Google or explore in demo mode first. No setup friction.</p></article>
+          <article class="step-card"><span class="step-number">02</span><h3>Make it yours</h3><p>Add your links, pick a theme, claim a unique handle.</p></article>
+          <article class="step-card"><span class="step-number">03</span><h3>Tap & share</h3><p>Write to an NFC tag, print the QR, or share your URL anywhere.</p></article>
+        </div>
+      </section>
+
+      <section class="section container nfc-section" id="nfc-section" aria-labelledby="nfcTitle">
+        <div class="nfc-panel">
+          <div class="nfc-panel-copy">
+            <span class="section-kicker">NFC, explained</span>
+            <h2 id="nfcTitle">Write once. Tap forever.</h2>
+            <p>
+              Tapfolio stores a simple URL record on an NFC tag. On Android with Chrome, use the
+              <strong>Write to NFC</strong> button. On iPhone, write the same URL with a free NFC tag writer app.
+            </p>
+            <div class="nfc-notes">
+              <span><span aria-hidden="true">✓</span> Any NTAG213/215/216 tag</span>
+              <span><span aria-hidden="true">✓</span> No app needed to visit the profile</span>
+              <span><span aria-hidden="true">✓</span> Works with QR as a fallback</span>
+            </div>
+          </div>
+          <div class="nfc-visual" aria-hidden="true">
+            <div class="nfc-rings"><i></i><i></i><i></i><span>◉</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section container final-cta">
+        <div class="final-cta-card">
+          <span class="section-kicker">Ready when you are</span>
+          <h2>Make your first impression unforgettable.</h2>
+          <button class="btn btn-light btn-lg" type="button" data-action="start">Create your page <span aria-hidden="true">→</span></button>
+        </div>
+      </section>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section class="view dashboard-view hidden" id="dashboardView" aria-label="Tapfolio editor">
+      <div class="container dashboard-container">
+        <div class="dashboard-topbar">
+          <div>
+            <span class="section-kicker">Your workspace</span>
+            <h1 class="dashboard-title">Build your Tapfolio</h1>
+            <p class="dashboard-subtitle" id="dashUserChip">Local preview</p>
+          </div>
+          <div class="dashboard-actions">
+            <button class="btn btn-glass btn-sm" type="button" data-action="home"><span aria-hidden="true">⌂</span> Home</button>
+            <button class="btn btn-glass btn-sm" type="button" data-action="signout">Sign out</button>
+            <button class="btn btn-primary" type="button" data-action="save" id="saveBtn"><span aria-hidden="true">✓</span> Save changes</button>
+            <span class="save-state" id="saveState">All changes saved</span>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="editor-column">
+            <section class="panel">
+              <div class="panel-head">
+                <div><h2>Profile</h2><p>The first thing people see.</p></div>
+                <span class="panel-index">01</span>
+              </div>
+              <div class="form-grid">
+                <label class="field field-span-2">
+                  <span>Avatar image URL <em>optional</em></span>
+                  <input id="avatarInput" type="url" placeholder="https://…/photo.jpg" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>Display name</span>
+                  <input id="nameInput" type="text" maxlength="60" placeholder="Your name" />
+                </label>
+                <label class="field">
+                  <span>Unique handle</span>
+                  <div class="input-with-prefix"><span>/u/</span><input id="handleInput" type="text" maxlength="30" placeholder="your-handle" spellcheck="false" /></div>
+                </label>
+                <label class="field field-span-2">
+                  <span>Headline</span>
+                  <input id="headlineInput" type="text" maxlength="100" placeholder="Developer · Designer · Creator" />
+                </label>
+                <label class="field field-span-2">
+                  <span>Short bio</span>
+                  <textarea id="bioInput" rows="3" maxlength="240" placeholder="Tell people what you do in a sentence or two."></textarea>
+                </label>
+                <label class="field">
+                  <span>Location</span>
+                  <input id="locationInput" type="text" maxlength="80" placeholder="Remote · Earth" />
+                </label>
+                <label class="field">
+                  <span>Status</span>
+                  <select id="statusSelect"></select>
+                </label>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div><h2>Links</h2><p>Drag to reorder. Toggle to hide.</p></div>
+                <span class="panel-index">02</span>
+              </div>
+              <div class="link-list" id="linkList"></div>
+              <button class="add-link-btn" id="addLinkBtn" type="button"><span aria-hidden="true">＋</span> Add a link</button>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div><h2>Style</h2><p>Choose a look that feels like you.</p></div>
+                <span class="panel-index">03</span>
+              </div>
+              <div class="form-grid">
+                <label class="field">
+                  <span>Accent color</span>
+                  <div class="color-field"><input id="accentInput" type="color" value="#7c5cff" /><code id="accentValue">#7c5cff</code></div>
+                </label>
+                <label class="field">
+                  <span>Background</span>
+                  <select id="themeSelect"></select>
+                </label>
+                <div class="field field-span-2">
+                  <span>Quick colors</span>
+                  <div class="preset-row" id="accentPresets"></div>
+                </div>
+                <label class="field">
+                  <span>Button style</span>
+                  <select id="buttonStyleSelect">
+                    <option value="pill">Pill</option>
+                    <option value="soft">Soft</option>
+                    <option value="outline">Outline</option>
+                  </select>
+                </label>
+                <label class="toggle-field">
+                  <input id="badgeToggle" type="checkbox" checked />
+                  <span class="toggle-track" aria-hidden="true"></span>
+                  <span>Show “Made with Tapfolio” badge</span>
+                </label>
+              </div>
+            </section>
+          </div>
+
+          <aside class="preview-column">
+            <div class="preview-sticky">
+              <section class="panel preview-panel">
+                <div class="panel-head compact">
+                  <div><h2>Live preview</h2><p>Exactly what visitors will see.</p></div>
+                  <span class="live-pill"><span class="pulse-dot"></span> Live</span>
+                </div>
+                <div class="device-frame">
+                  <div class="device-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+                  <div id="previewRoot" class="preview-root"></div>
+                </div>
+              </section>
+
+              <section class="panel launch-panel">
+                <div class="panel-head compact"><div><h2>Launchpad</h2><p>Share it anywhere.</p></div></div>
+                <label class="field">
+                  <span>Your public link</span>
+                  <div class="url-copy">
+                    <input id="profileUrlInput" type="text" readonly />
+                    <button class="icon-btn" type="button" data-action="copy-url" aria-label="Copy profile link" title="Copy link">⧉</button>
+                  </div>
+                </label>
+                <div class="launch-grid">
+                  <button class="launch-btn" type="button" data-action="open-profile"><span aria-hidden="true">↗</span><span>View</span></button>
+                  <button class="launch-btn" type="button" data-action="qr"><span aria-hidden="true">▦</span><span>QR code</span></button>
+                  <button class="launch-btn accent" type="button" data-action="nfc"><span aria-hidden="true">⚡</span><span>Write NFC</span></button>
+                  <button class="launch-btn" type="button" data-action="share"><span aria-hidden="true">⇪</span><span>Share</span></button>
+                  <button class="launch-btn" type="button" data-action="vcf"><span aria-hidden="true">◍</span><span>vCard</span></button>
+                </div>
+                <p class="launch-hint" id="demoHint"></p>
+              </section>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- PUBLIC PROFILE -->
+    <section class="view profile-view hidden" id="profileView" aria-label="Public profile">
+      <div id="profileRoot"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span class="footer-brand">tapfolio<span>.</span></span>
+      <span>Made by <strong>Shinjuu</strong> · <a href="mailto:fsociety.shinjuu@gmail.com">fsociety.shinjuu@gmail.com</a></span>
+      <span>One tap. Your whole world.</span>
+    </div>
+  </footer>
+
+  <dialog class="modal" id="authDialog" aria-labelledby="authTitle">
+    <button class="modal-close" type="button" data-close-dialog aria-label="Close">×</button>
+    <div class="auth-art" aria-hidden="true"><span>◉</span></div>
+    <h2 id="authTitle">Welcome to Tapfolio</h2>
+    <p class="modal-subtitle">Sign in to build your NFC-ready page. It takes about a minute.</p>
+    <button class="btn btn-google" id="googleSignInBtn" type="button" data-action="google-signin">
+      <span class="google-mark" aria-hidden="true">G</span> Continue with Google
+    </button>
+    <button class="btn btn-glass full" type="button" data-action="demo-signin">Explore in demo mode</button>
+    <p class="auth-note" id="authNote"></p>
+  </dialog>
+
+  <dialog class="modal" id="actionDialog" aria-labelledby="actionDialogTitle">
+    <button class="modal-close" type="button" data-close-dialog aria-label="Close">×</button>
+    <div id="actionDialogBody"></div>
+  </dialog>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>

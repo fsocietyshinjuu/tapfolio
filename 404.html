@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Opening Tapfolio…</title>
+  <script>
+    (function () {
+      var path = location.pathname;
+      var match = path.match(/\/u\/([^/]+)\/?$/);
+      if (match) {
+        var base = path.slice(0, match.index).replace(/\/$/, "");
+        var query = "?u=" + encodeURIComponent(decodeURIComponent(match[1]));
+        location.replace(base + "/" + query + location.hash);
+      } else {
+        location.replace("/");
+      }
+    })();
+  </script>
+</head>
+<body><p>Opening profile…</p></body>
+</html>
