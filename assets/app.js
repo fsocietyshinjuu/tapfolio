@@ -165,11 +165,15 @@ async function loadOwnProfile() {
     const { doc, getDoc } = state.firebase.dbMod;
     const db = state.firebase.db;
     try {
-      const userSnap = await getDoc(doc(db, "users", user.uid));
-      const handle = userSnap.exists() ? userSnap.data().handle : suggested;
+      const withTimeout = (promise) => Promise.race([
+        promise,
+        new Promise((resolve) => setTimeout(() => resolve(null), 2000))
+      ]);
+      const userSnap = await withTimeout(getDoc(doc(db, "users", user.uid)));
+      const handle = userSnap?.exists() ? userSnap.data().handle : suggested;
       if (handle) {
-        const profileSnap = await getDoc(doc(db, "profiles", handle));
-        if (profileSnap.exists()) return normalizeProfile(profileSnap.data());
+        const profileSnap = await withTimeout(getDoc(doc(db, "profiles", handle)));
+        if (profileSnap?.exists()) return normalizeProfile(profileSnap.data());
       }
     } catch (error) {
       console.warn("Tapfolio: could not load profile.", error);
@@ -192,8 +196,12 @@ async function loadPublicProfile(handle) {
   if (state.mode === "firebase" && state.firebase) {
     const { doc, getDoc } = state.firebase.dbMod;
     try {
-      const snap = await getDoc(doc(state.firebase.db, "profiles", handle));
-      if (snap.exists()) return normalizeProfile(snap.data());
+      // Never hold the public page hostage to a slow/offline Firestore call.
+      const snap = await Promise.race([
+        getDoc(doc(state.firebase.db, "profiles", handle)),
+        new Promise((resolve) => setTimeout(() => resolve(null), 2000))
+      ]);
+      if (snap?.exists()) return normalizeProfile(snap.data());
     } catch (error) {
       console.warn("Tapfolio: could not load public profile.", error);
     }
